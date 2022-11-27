@@ -32,22 +32,23 @@ double throttle=1200; //nilai awal throttle ke motor
 float desired_angle = 0; //sudut di mana kita ingin keseimbangan tetap stabil
 float xFilter, yFilter; //pengaplikasian kalman filter
 
+float Xt, Xt_update, Xt_prev;
+float Pt, Pt_update, Pt_prev;
+float Kt, R=100, Q=1;
+float a_kalman;
+
 //KALMAN FILTER
 float kalman(float a)
 {
-  float Xt, Xt_update, Xt_prev;     //Estimate
-  float Pt, Pt_update, Pt_prev;     //Error Estimate
-  float Kt, R=100, Q=1;             //Kalman Gain, Error MEA, t+1
-  float a_kalman;
-
   Xt_update = Xt_prev;
   Pt_update = Pt_prev + Q;
   Kt = Pt_update/(Pt_update + R);
-  Xt = Xt_update + (Kt*(a - Xt_update));  
+  Xt = Xt_update + (Kt*(a - Xt_update));
   Pt = (1 - Kt)*Pt_update;
   Xt_prev = Xt;
   Pt_prev = Pt;
   a_kalman = Xt;
+
   return a_kalman;
 }
 
@@ -230,9 +231,8 @@ mengapa perlu dibuat operasi if untuk error antara -3 dan 3 derajat.
 Untuk mengintegrasikan, kita hanya menjumlahkan nilai integral sebelumnya dengan
 error dikalikan dengan konstanta integral. Ini akan mengintegrasikan (meningkatkan)
 nilai setiap putaran sampai kita mencapai titik 0*/
-if (-3 < error < 3)
-{
-  pid_i = pid_i+(ki*error);  
+if(-3 <error && error <3){
+  pid_i = pid_i+(ki*error);
 }
 
 /* Bagian terakhir adalah derivate. Derivate bertindak atas kecepatan error.
